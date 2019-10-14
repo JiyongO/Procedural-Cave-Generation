@@ -8,7 +8,30 @@ public class MeshGenerator : MonoBehaviour
     public void GenerateMesh(int[,] map, float squareSize)
     {
         squareGrid = new SquareGrid(map, squareSize);
+        for (int x = 0; x < squareGrid.squares.GetLength(0); x++)
+        {
+            for (int y = 0; y < squareGrid.squares.GetLength(1); y++)
+            {
+                TriangulateSquare(squareGrid.squares[x, y]);
+            }
+        }
     }
+    void TriangulateSquare(Square square)
+    {
+        switch (square.configuration)
+        {
+            case 0:
+                break;
+            // 1 points:
+            case 1:
+                MeshFromPoints(square.centreBottom, square.bottomLeft, square.centreLeft);
+                break;
+
+            default:
+                break;
+        }
+    }
+    void MeshFromPoints(params Node[] points) { }
 
     private void OnDrawGizmos()
     {
@@ -75,6 +98,7 @@ public class MeshGenerator : MonoBehaviour
     {
         public ControlNode topLeft, topRight, bottomRight, bottomLeft;
         public Node centreTop, centreRight, centreBottom, centreLeft;
+        public int configuration;
 
         public Square (ControlNode _topLeft, ControlNode _topRight, ControlNode _bottomRight, ControlNode _bottomLeft)
         {
@@ -87,6 +111,15 @@ public class MeshGenerator : MonoBehaviour
             centreRight = bottomRight.above;
             centreBottom = bottomLeft.right;
             centreLeft = bottomLeft.above;
+
+            if (topLeft.active)
+                configuration += 8;
+            if (topRight.active)
+                configuration += 4;
+            if (bottomRight.active)
+                configuration += 2;
+            if (bottomLeft.active)
+                configuration += 1;
         }
     }
     public class Node
